@@ -369,3 +369,157 @@ summary(anova_milk_2)
 
 tukey_anova_milk_2<- TukeyHSD(anova_milk_2)
 tukey_anova_milk_2
+
+### reliability, normality, and validity 
+
+## self-categorization (reliability)
+
+# distribution items
+hist(pilot$selfcat_1)
+hist(pilot$selfcat_2)
+
+# outlier detection
+selfcat_1 <- pilot$selfcat_1
+selfcat_1_mad <- Routliers::outliers_mad(x=selfcat_1)
+selfcat_1_mad # no outliers
+
+selfcat_2 <- pilot$selfcat_2
+selfcat_2_mad <- Routliers::outliers_mad(x=selfcat_2)
+selfcat_2_mad # no outliers
+
+# cronbach's alpha
+library(psych)
+
+key <- list(
+  selfcat = c("selfcat_1", "selfcat_2")
+)
+
+score.items(key, pilot) # reliability of 0.96
+
+# inter-item correlation
+library(performance)
+
+interitem_selfcat <- pilot[, c("selfcat_1", "selfcat_2")]
+item_intercor(interitem_selfcat) # inter-item correlation of 0.92
+
+# create new variable "selfcat"
+
+pilot <- pilot %>%
+  mutate(
+    selfcat = (selfcat_1 + selfcat_2)/2
+  )
+
+# normality
+hist(pilot$selfcat)
+describe(pilot$selfcat) # in the range of normality, but visually positively skewed
+
+# group effect?
+pilot_left <- pilot %>%
+  filter(affiliation == "Left")
+
+hist(pilot_left$selfcat) # strongly positively skewed
+describe(pilot_left$selfcat) # skew = 1.2
+
+pilot_centre <- pilot %>%
+  filter(affiliation == "Centre")
+
+hist(pilot_centre$selfcat) # still positively skewed but lesser than left
+describe(pilot_centre$selfcat)
+
+pilot_right <- pilot %>%
+  filter(affiliation == "Right")
+
+hist(pilot_right$selfcat) # rather normal looking
+describe(pilot_right$selfcat)
+
+pilot_na <- pilot %>%
+  filter(affiliation == "Not affiliated")
+
+hist(pilot_na$selfcat) # positively skewed
+describe(pilot_na$selfcat)
+
+
+## stereotype (competence)
+
+# distribution
+hist(pilot$stereo_1)
+hist(pilot$stereo_2)
+
+# outlier detection
+stereo_1 <- pilot$stereo_1
+stereo_1_mad <- Routliers::outliers_mad(x=stereo_1)
+stereo_1_mad # no outliers
+
+stereo_2 <- pilot$stereo_2
+stereo_2_mad <- Routliers::outliers_mad(x=stereo_2)
+stereo_2_mad # no outliers
+
+# inter-item correlation
+
+interitem_stereo <- pilot[, c("stereo_1", "stereo_2")]
+item_intercor(interitem_stereo) # inter-item correlation of 0.76
+
+# create new variable "selfcat"
+
+pilot <- pilot %>%
+  mutate(
+    stereo = (stereo_1 + stereo_2)/2
+  )
+
+# normality
+hist(pilot$stereo)
+describe(pilot$stereo) # in the range of normality, and visually rather normal looking
+
+## legitimacy 
+
+# distribution
+hist(pilot$legit_1)
+hist(pilot$legit_2)
+hist(pilot$legit_3)
+
+# outlier detection
+legit_1 <- pilot$legit_1
+legit_1_mad <- Routliers::outliers_mad(x=legit_1)
+legit_1_mad # no outliers
+
+legit_2 <- pilot$legit_2
+legit_2_mad <- Routliers::outliers_mad(x=legit_2)
+legit_2_mad # no outliers
+
+legit_3 <- pilot$legit_3
+legit_3_mad <- Routliers::outliers_mad(x=legit_3)
+legit_3_mad # no outliers
+
+# cronbach's alpha
+key_1 <- list(
+  legit = c("legit_1", "legit_2", "legit_3")
+)
+
+score.items(key_1, pilot) # alpha = 0.83
+
+# create new variable "legit"
+
+pilot <- pilot %>%
+  mutate(
+    legit = (legit_1 + legit_2 + legit_3)/3
+  )
+
+# normality
+
+hist(pilot$legit)
+describe(pilot$legit) # rather normally distributed
+
+# validity 
+library(lavaan)
+library(semPlot)
+library(lm.beta)
+
+legit.cfa <- 'legit.cfa =~ legit_1 + legit_2 + legit_3'
+cfa_legit.sem <- sem(legit.cfa, data = pilot)
+lavaan::summary(cfa_legit.sem, standardized = TRUE, fit.measures = TRUE) # model is saturated (sign chi-square, RMSEA = 0, CFI = 1)
+# the adequacy of saturated models can be tested by experimentally targeting it, i.e., if its predictions match the observed 
+# differences (or lack thereof) of the parameter estimates, then the model may be valid 
+# (https://stats.stackexchange.com/questions/283/what-is-a-saturated-model#:~:text=If%20a%20model%20is%20saturated,that%20the%20model%20is%20valid.)
+# --> can we observe differences in predictions based on affiliation (i.e., theoretically, individuals on the right should rate the
+# the party as legitimate, whereas individuals on the left should not)
+
