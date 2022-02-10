@@ -676,3 +676,56 @@ describe(pilot$poleff) # rather normally distributed
 
 hist(pilot$orgaeff)
 describe(pilot$orgaeff) # rather normally distributed
+
+### descriptive statistics
+
+pilot %>%
+  select(selfcat, endorse, poleff, orgaeff, stereo, legit, support) %>%
+  psych::describe() %>%
+  as_tibble(rownames="rowname")  %>%
+  print()
+
+# by group
+summary <- pilot %>%
+  dplyr::group_by(affiliation) %>%
+  summarise(
+    selfcat_min = min(selfcat),
+    selfcat_max = max(selfcat),
+    selfcat_mean = mean(selfcat),
+    selfcat_sd = sd(selfcat),
+    endorse_min = min(endorse),
+    endorse_max = max(endorse),
+    endorse_mean = mean(endorse),
+    endorse_sd = sd(endorse),
+    poleff_min = min(poleff),
+    poleff_max = max(poleff),
+    poleff_mean = mean(poleff),
+    poleff_sd = sd(poleff),
+    orgaeff_min = min(orgaeff),
+    orgaeff_max = max(orgaeff),
+    orgaeff_mean = mean(orgaeff),
+    orgaeff_sd = sd(orgaeff),
+    stereo_min = min(stereo),
+    stereo_max = max(stereo),
+    stereo_mean = mean(stereo),
+    stereo_sd = sd(stereo),
+    legit_min = min(legit),
+    legit_max = max(legit),
+    legit_mean = mean(legit),
+    legit_sd = sd(legit),
+    support_min = min(support),
+    support_max = max(support),
+    support_mean = mean(support),
+    support_sd = sd(support)
+  ) %>%
+  mutate_at(vars(-affiliation), funs(round(., 2)))
+
+summary <- summary %>% 
+  rownames_to_column() %>% 
+  gather(variable, value, -rowname) %>% 
+  spread(rowname, value) 
+
+names(summary) <- summary[1,]
+summary <- summary[-1,]
+
+### correlation
