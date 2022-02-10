@@ -547,3 +547,132 @@ lavaan::summary(cfa_legit.sem, standardized = TRUE, fit.measures = TRUE) # model
 # --> can we observe differences in predictions based on affiliation (i.e., theoretically, individuals on the right should rate the
 # the party as legitimate, whereas individuals on the left should not)
 
+## efficacy
+
+# EFA
+library(corrplot)
+library(car)
+
+df_eff <- pilot %>%
+  dplyr::select(poleff_1, poleff_2, poleff_3, orgaeff_1, orgaeff_2)
+
+datamatrix <- cor(df_eff)
+corrplot(datamatrix, method = "number")
+
+KMO(r=cor(df_eff)) # Kaiser (1974) suggests a cutoff for determining the factorability of the data
+# if KMO > .60, here, the total KMO is .72 and we can therefore conduct a factor analysis
+
+cortest.bartlett(df_eff) # small values of the significant level indicate that a factor analysis 
+# would be useful, here p < .001
+
+det(cor(df_eff)) # positive determinant (0.052), indicating that factor analysis will probably run
+
+# establish factors
+
+fafitfree <- fa(df_eff, nfactors = ncol(df_eff), rotate = "none")
+n_factors <- length(fafitfree$e.values)
+scree <- data.frame(Factor_n = as.factor(1:n_factors),
+                    Eigenvalue = fafitfree$e.values)
+ggplot(scree, aes(x = Factor_n, y = Eigenvalue, group = 1)) +
+  geom_point() + geom_line() +
+  xlab("Number of factors") +
+  ylab("Initial eigenvalue") +
+  labs(title = "Scree Plot",
+       subtitle = "Based on the unreduced correlation matrix") # 2 or 3 factors
+
+parallel <- fa.parallel(df_eff) # 2 factors
+
+# FA with fa method
+
+fa.none <- fa(r= df_eff,
+              nfactors = 2,
+              fm= "pa",
+              max.iter = 100,
+              rotate = "Promax")
+print(fa.none)
+
+# FA with factanal method
+
+factanal.none <- factanal(df_eff, factors = 2, scores = c("regression"), rotation = "Promax")
+print(factanal.none)
+
+#  in orthogonal rotation, factor loadings = correlations (-1 to 1),if the factors are correlated 
+# (oblique), the factor loading are regression coefficients (can be bigger than 1)
+
+# Factor 1 (PolEff) explains 39% of the variables' variance; factor 2 explains 74% of the variables'
+# variance
+
+fa.diagram(fa.none)
+
+# row scores
+
+head(fa.none$scores)
+
+regdata <- fa.none$scores
+colnames(regdata) <- c("PolEff", "OrgEff")
+
+# distribution
+
+hist(pilot$poleff_1)
+hist(pilot$poleff_2)
+hist(pilot$poleff_3)
+
+hist(pilot$orgaeff_1)
+hist(pilot$orgaeff_2)
+
+# outlier detection
+poleff_1 <- pilot$poleff_1
+poleff_1_mad <- Routliers::outliers_mad(x=poleff_1)
+poleff_1_mad # no outliers
+
+poleff_2 <- pilot$poleff_2
+poleff_2_mad <- Routliers::outliers_mad(x=poleff_2)
+poleff_2_mad # no outliers
+
+poleff_3<- pilot$poleff_3
+poleff_3_mad <- Routliers::outliers_mad(x=poleff_3)
+poleff_3_mad # no outliers
+
+orgaeff_1<- pilot$orgaeff_1
+orgaeff_1_mad <- Routliers::outliers_mad(x=orgaeff_1)
+orgaeff_1_mad # no outliers
+
+orgaeff_2<- pilot$orgaeff_2
+orgaeff_2_mad <- Routliers::outliers_mad(x=orgaeff_2)
+orgaeff_2_mad # no outliers
+
+# cronbach's alpha
+
+key_2 <- list(
+  poleff = c("poleff_1", "poleff_2", "poleff_3")
+)
+
+score.items(key_2, pilot) # alpha = 0.84
+
+# create new variable "poleff"
+
+pilot <- pilot %>%
+  mutate(
+    poleff = (poleff_1 + poleff_2 + poleff_3)/3
+  )
+
+key_3 <- list(
+  poleff = c("orgaeff_1", "orgaeff_2")
+)
+
+score.items(key_3, pilot) # alpha = 0.93
+
+# create new variable "orgaeff"
+
+pilot <- pilot %>%
+  mutate(
+    orgaeff = (orgaeff_1 + orgaeff_2)/2
+  )
+
+# normality
+
+hist(pilot$poleff)
+describe(pilot$poleff) # rather normally distributed
+
+hist(pilot$orgaeff)
+describe(pilot$orgaeff) # rather normally distributed
