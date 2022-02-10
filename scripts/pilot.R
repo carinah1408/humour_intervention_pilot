@@ -279,6 +279,30 @@ summary(anova_music_2)
 tukey_anova_music_2 <- TukeyHSD(anova_music_2)
 tukey_anova_music_2
 
+# testing music_1 as significant from scale mid-point (3)
+
+t.test(pilot$music_1, mu = 3, alternative = "two.sided")
+
+music_1_left <- pilot %>%
+  dplyr::filter(affiliation == "Left")
+
+t.test(music_1_left$music_1, mu = 3, alternative = "two.sided")
+
+music_1_centre <- pilot %>%
+  dplyr::filter(affiliation == "Centre")
+
+t.test(music_1_centre$music_1, mu = 3, alternative = "two.sided")
+
+music_1_right <- pilot %>%
+  dplyr::filter(affiliation == "Right")
+
+t.test(music_1_right$music_1, mu = 3, alternative = "two.sided")
+
+music_1_na <- pilot %>%
+  dplyr::filter(affiliation == "Not affiliated")
+
+t.test(music_1_na$music_1, mu = 3, alternative = "two.sided")
+
 # scenario 2 (signs)
 
 # distribution
