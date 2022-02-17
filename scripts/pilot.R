@@ -756,13 +756,10 @@ library(Hmisc)
 rcorr(as.matrix(pilot_cor)) %>%
   print()
 
-### bivariate visualizations and mutlivariate outlier detection
+### bivariate visualizations and mutlivariate outlier detection: selfcat, stereo, poleff, 
+# orgaeff, legit and support
 
-# selfcat, stereo, poleff, orgaeff, legit and support
-
-# scatterplots (stereo, poleff, orgaeff = x; legit and support = y)
-
-# stereo and legit
+## stereo and legit
 pilot %>%
   select(stereo, legit) %>%
   plot()
@@ -774,11 +771,66 @@ pilot %>%
 legit_stereo <- lm(legit ~ stereo, data = pilot)
 durbinWatsonTest(legit_stereo) # dw = 1.62 error independence met 
 
-plot(legit_stereo) # linearity and normality met; homoscedasticity potentially violated; 
+plot(legit_stereo) # normality met; homoscedasticity potentially violated; 
 # potential outliers: ID26, 49, 112, but no influential cases
 
 # checking homoscedasticity again
-ncvTest(legit_stereo) # n.s. --> 
+ncvTest(legit_stereo) # n.s. --> homoscedasticity seems to be ok
+
+## stereo and support
+pilot %>%
+  select(stereo, support) %>%
+  plot()
+
+pilot %>%
+  lm(legit ~ support, data = .) %>%
+  abline()
+
+support_stereo <- lm(support ~ stereo, data = pilot)
+durbinWatsonTest(support_stereo) # dw = 1.77 error independence met
+
+plot(support_stereo) # normality unclear, homoscedasticity potential violated; 
+# potential outliers ID45, 74, 166, 134, 135, but no influential cases
+
+# checking normality again
+library(MASS)
+
+sresid <- MASS::studres(support_stereo) 
+hist(sresid, freq=FALSE, 
+     main="Distribution of Studentized Residuals")
+xfit<-seq(min(sresid),max(sresid),length=40) 
+yfit<-dnorm(xfit) 
+lines(xfit, yfit) # normality violated --> robust regression
+
+# checking homoscedasticity again
+car::ncvTest(support_stereo) # sign., homoscedasiticy violated --> transform data 
+# (but test on final model again)
+
+# multivariate outliers stereo, legit and support (mcd)
+
+legitimacy <- pilot$legit
+stereotype <- pilot$stereo
+legit_stereo_mcd <- Routliers::outliers_mcd(x = data.frame(legitimacy,stereotype))
+legit_stereo_mcd # 13 outliers detected
+Routliers::plot_outliers_mcd(legit_stereo_mcd, x = data.frame(legitimacy, stereotype))
+# no influential cases (in line with diagnostics)
+
+supporting <- pilot$support
+support_stereo_mcd <- Routliers::outliers_mcd(x = data.frame(supporting,stereotype))
+support_stereo_mcd # 27 outliers found
+Routliers::plot_outliers_mcd(support_stereo_mcd, x = data.frame(supporting, stereotype), pos_display = TRUE)
+# slightly steeper slope without outliers 
+
+# finding outliers' ID
+outliers_support_stereo <- support_stereo_mcd$outliers_pos
+
+
+## poleff and legit
+
+
+
+
+
 
 ## multivariate outliers (mcd)
 
