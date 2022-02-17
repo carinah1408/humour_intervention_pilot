@@ -547,6 +547,9 @@ lavaan::summary(cfa_legit.sem, standardized = TRUE, fit.measures = TRUE) # model
 # --> can we observe differences in predictions based on affiliation (i.e., theoretically, individuals on the right should rate the
 # the party as legitimate, whereas individuals on the left should not)
 
+# construct validity further through correlation with related measures (convergent) and unrelated
+# measures (discriminant)
+
 ## efficacy
 
 # EFA
@@ -567,7 +570,7 @@ cortest.bartlett(df_eff) # small values of the significant level indicate that a
 
 det(cor(df_eff)) # positive determinant (0.052), indicating that factor analysis will probably run
 
-# establish factors
+# establishing factors
 
 fafitfree <- fa(df_eff, nfactors = ncol(df_eff), rotate = "none")
 n_factors <- length(fafitfree$e.values)
@@ -582,7 +585,7 @@ ggplot(scree, aes(x = Factor_n, y = Eigenvalue, group = 1)) +
 
 parallel <- fa.parallel(df_eff) # 2 factors
 
-# FA with fa method
+# FA with fa function
 
 fa.none <- fa(r= df_eff,
               nfactors = 2,
@@ -591,7 +594,19 @@ fa.none <- fa(r= df_eff,
               rotate = "Promax")
 print(fa.none)
 
-# FA with factanal method
+# FA with psych function (preferred)
+library(GPArotation)
+
+psych::fa.parallel(df_eff, fa= "fa") # suggested factors = 2
+fa.none2 <- fa(df_eff,
+              nfactors = 2,
+              scores = "tenBerge")
+print(fa.none2)
+
+library(parameters)
+parameters::model_parameters(fa.none2, sort= TRUE, threshold = "max")
+
+# FA with factanal function
 
 factanal.none <- factanal(df_eff, factors = 2, scores = c("regression"), rotation = "Promax")
 print(factanal.none)
@@ -729,3 +744,43 @@ names(summary) <- summary[1,]
 summary <- summary[-1,]
 
 ### correlation
+
+pilot_cor <-pilot %>%
+  select(selfcat, endorse, stereo, poleff, orgaeff, legit, support) %>%
+  round(., 2)
+
+corrmatrix <- cor(pilot_cor)
+corrplot(corrmatrix, method = "number")
+
+library(Hmisc)
+rcorr(as.matrix(pilot_cor)) %>%
+  print()
+
+### bivariate visualizations and mutlivariate outlier detection
+
+# selfcat, stereo, poleff, orgaeff, legit and support
+
+# scatterplots (stereo, poleff, orgaeff = x; legit and support = y)
+
+# stereo and legit
+pilot %>%
+  select(stereo, legit) %>%
+  plot()
+
+pilot %>%
+  lm(legit ~ stereo, data = .) %>%
+  abline()
+
+legit_stereo <- lm(legit ~ stereo, data = pilot)
+durbinWatsonTest(legit_stereo) # dw = 1.62 error independence met 
+
+plot(legit_stereo) # linearity and normality met; homoscedasticity potentially violated; 
+# potential outliers: ID26, 49, 112, but no influential cases
+
+# checking homoscedasticity again
+ncvTest(legit_stereo) # n.s. --> 
+
+## multivariate outliers (mcd)
+
+# "cn_age_mcd <- Routliers::outliers_mcd(x = data.frame(cn,age))"
+# plot outliers: "plot_outliers_mcd(cn_age_mcd, x = data.frame(cn, age))"
