@@ -756,8 +756,8 @@ library(Hmisc)
 rcorr(as.matrix(pilot_cor)) %>%
   print()
 
-### bivariate visualizations and mutlivariate outlier detection: selfcat, stereo, poleff, 
-# orgaeff, legit and support
+### bivariate visualizations and mutlivariate outlier detection: stereo, poleff, 
+# orgaeff and legit and support; selfcat and legit and support
 
 ## stereo and legit
 pilot %>%
@@ -826,13 +826,185 @@ outliers_support_stereo <- support_stereo_mcd$outliers_pos
 
 
 ## poleff and legit
+pilot %>%
+  select(poleff, legit) %>%
+  plot()
+
+pilot %>%
+  lm(legit ~ poleff, data = .) %>%
+  abline()
+
+legit_poleff <- lm(legit ~ poleff, data = pilot)
+durbinWatsonTest(legit_poleff) # dw = 1.62 independence of error is met
+
+plot(legit_poleff) # homoscedasiticity potentially violated, normality seems ok
+# ; outliers: ID13, 46, 197, but no influential cases
+
+# checking homoscedasticity again
+car::ncvTest(legit_poleff) # sign., homoscedasticity violated (transform data, but see in final model)
+
+## poleff and support
+pilot %>%
+  select(poleff, support) %>%
+  plot()
+
+pilot %>%
+  lm(support ~ poleff, data = .) %>%
+  abline()
+
+support_poleff <- lm(support ~ poleff, data = pilot)
+durbinWatsonTest(support_poleff) # dw = 1.75, independence of errors met
+
+plot(support_poleff) # homoscedasticity violated, normality?; outliers: ID45, 166, 170, no
+# influential cases
+
+# checking homoscedasticity again
+car::ncvTest(support_poleff) # sign. homoscedasiticy violated
+
+# checking normality again
+sresid <- MASS::studres(support_poleff) 
+hist(sresid, freq=FALSE, 
+     main="Distribution of Studentized Residuals")
+xfit<-seq(min(sresid),max(sresid),length=40) 
+yfit<-dnorm(xfit) 
+lines(xfit, yfit) # normality slightly violated (robust regression)
 
 
+# multivariate outliers poleff, legit and support (mcd)
+
+legitimacy <- pilot$legit
+politicalefficacy <- pilot$poleff
+legit_poleff_mcd <- Routliers::outliers_mcd(x = data.frame(politicalefficacy, legitimacy))
+legit_poleff_mcd # 12 outliers detected
+Routliers::plot_outliers_mcd(legit_poleff_mcd, x = data.frame(politicalefficacy, legitimacy))
+# no influential cases
+
+support_poleff_mcd <- Routliers::outliers_mcd(x = data.frame(politicalefficacy, supporting))
+support_poleff_mcd # 61 outliers detected
+Routliers::plot_outliers_mcd(support_poleff_mcd, x = data.frame(politicalefficacy, supporting))
+# slope flater without outliers
+
+# those in the centre, on the right and not affiliated push the slop up
+outliers_support <- pilot %>% filter(support >= "4")
 
 
+## orgaeff and legit
+pilot %>%
+  select(orgaeff, legit) %>%
+  plot()
+
+pilot %>%
+  lm(legit ~ orgaeff, data = .) %>%
+  abline()
+
+legit_orgaeff <- lm(legit ~ orgaeff, data = pilot)
+durbinWatsonTest(legit_orgaeff) # dw = 1.69, independence of errors met
+
+plot(legit_orgaeff) # outliers: ID26, 45, 112 but no influential cases; normality met, 
+# homoscedasticity unclear
+
+# checking homoscedasticity again
+car::ncvTest(legit_orgaeff) # n.s., homoscedasticity met
+
+## orgaeff and support
+pilot %>%
+  select(orgaeff, support) %>%
+  plot()
+
+pilot %>%
+  lm(support ~ orgaeff, data = .) %>%
+  abline()
+
+support_orgaeff <- lm(support ~ orgaeff, data = pilot)
+durbinWatsonTest(support_orgaeff) # dw = 1.8 indepdendence errors met
+
+plot(support_orgaeff) # homoscedasticity and normality potentially violated; outliers: ID45, 166, 174
+# no influential cases
+
+# checking homoscedasticity again
+car::ncvTest(support_orgaeff) # sign. homoscedasticity violated
+
+# checking normality again
+sresid <- MASS::studres(support_orgaeff) 
+hist(sresid, freq=FALSE, 
+     main="Distribution of Studentized Residuals")
+xfit<-seq(min(sresid),max(sresid),length=40) 
+yfit<-dnorm(xfit) 
+lines(xfit, yfit) # normality violated (robust regression)
+
+# multivariate outliers orgaeff, legit and support (mcd)
+
+organizationalefficacy <- pilot$orgaeff
+legit_orgaeff_mcd <- Routliers::outliers_mcd(x = data.frame(organizationalefficacy, legitimacy))
+legit_orgaeff_mcd # 11 outliers detected
+Routliers::plot_outliers_mcd(legit_poleff_mcd, x = data.frame(organizationalefficacy, legitimacy))
+# no influential cases
+
+support_orgaeff_mcd <- Routliers::outliers_mcd(x = data.frame(organizationalefficacy, supporting))
+support_orgaeff_mcd # 14 outliers detected
+Routliers::plot_outliers_mcd(support_poleff_mcd, x = data.frame(organizationalefficacy, supporting))
+# slope flater without outliers (see above: those on the right, in the centre and not affiliated
+# push the slope up)
+
+## selfcat and legit and support
+
+# selfcat and legit
+pilot %>%
+  select(selfcat, legit) %>%
+  plot()
+
+pilot %>%
+  lm(legit ~ selfcat, data = .) %>%
+  abline()
+
+legit_selfcat <- lm(legit ~ selfcat, data = pilot)
+durbinWatsonTest(legit_selfcat) # 1.8 independence of errors met
+
+plot(legit_selfcat) # outliers: ID30, 96, 195; homoscedasticity potentially violated
+
+# checking homoscedasticity again
+car::ncvTest(legit_selfcat) # sign. homoscedasticity violated
+
+# selfcat and support
+pilot %>%
+  select(selfcat, support) %>%
+  plot()
+
+pilot %>%
+  lm(support ~ selfcat, data = .) %>%
+  abline()
+
+support_selfcat <- lm(support ~ selfcat, data = pilot)
+durbinWatsonTest(support_selfcat) # 1.8 independence of errors met
+
+plot(support_selfcat) # outliers: ID21, 99, 184; normality potentially violated, 
+# homoscedasticity violated
+
+# checking homoscedasticity again
+car::ncvTest(support_selfcat) # homoscedasticity violated
+
+# checking normality again
+sresid <- MASS::studres(support_selfcat) 
+hist(sresid, freq=FALSE, 
+     main="Distribution of Studentized Residuals")
+xfit<-seq(min(sresid),max(sresid),length=40) 
+yfit<-dnorm(xfit) 
+lines(xfit, yfit) # normality seems slightly violated
+
+# multivariate outliers selfcat, legit and support (mcd)
+
+selfcategorization <- pilot$selfcat
+legit_selfcat_mcd <- Routliers::outliers_mcd(x = data.frame(selfcategorization, legitimacy))
+legit_selfcat_mcd # 14 outliers detected
+Routliers::plot_outliers_mcd(legit_poleff_mcd, x = data.frame(selfcategorization, legitimacy))
+# slope slightly steeper with outliers
+
+support_selfcat_mcd <- Routliers::outliers_mcd(x = data.frame(selfcategorization, supporting))
+support_selfcat_mcd # 24 outliers detected
+Routliers::plot_outliers_mcd(support_poleff_mcd, x = data.frame(selfcategorization, supporting))
+# slope is strongly positively influenced by outliers (those on the right, centre and na)
+
+### dichotomize political affiliation (left vs right/centre/na) to run chi-square on self-cat and
+# endorsement
 
 
-## multivariate outliers (mcd)
-
-# "cn_age_mcd <- Routliers::outliers_mcd(x = data.frame(cn,age))"
-# plot outliers: "plot_outliers_mcd(cn_age_mcd, x = data.frame(cn, age))"
