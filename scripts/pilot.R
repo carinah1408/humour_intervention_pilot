@@ -1004,7 +1004,25 @@ support_selfcat_mcd # 24 outliers detected
 Routliers::plot_outliers_mcd(support_poleff_mcd, x = data.frame(selfcategorization, supporting))
 # slope is strongly positively influenced by outliers (those on the right, centre and na)
 
-### dichotomize political affiliation (left vs right/centre/na) to run chi-square on self-cat and
-# endorsement
+### dichotomize political affiliation (left vs right/centre/na) to run t-test on self-cat/ endorse, as well as 
+# legitimacy and support
 
+pilot <- pilot %>%
+  mutate(aff_split = dplyr::recode(affiliation,
+    'Left' = 'Left',
+    'Right' = 'Other',
+    'Centre' = 'Other',
+    'Not affiliated' = 'Other'))
+
+t.test(selfcat ~ aff_split, data = pilot)
+
+ggplot(pilot, aes(as.factor(aff_split), selfcat)) + 
+  geom_point() + 
+  labs(y = "Self-categorization", x = "Political affiliation")
+
+t.test(endorse ~ aff_split, data = pilot)
+
+t.test(legit ~ aff_split, data = pilot)
+
+t.test(support ~ aff_split, data = pilot)
 
