@@ -6397,19 +6397,66 @@ process(activate=1)
 
 ### mediational models ----
 
+## mean-centre X and W (poleff, orgaeff, stereo, self-cat)
+
+pilot <- pilot %>%
+  mutate(
+     cselfcat = scale(selfcat, scale = FALSE),
+     cpoleff = scale(poleff, scale = FALSE), 
+     corgaeff = scale(orgaeff, scale = FALSE),
+     cstereo = scale(stereo, scale = FALSE)
+  )
+
 ## simple mediation: eff (pol/orga) = X, legit = M, support = Y
 
+process (data=pilot,y="support",x="cpoleff",m="legit",total=1,stand = 1, normal=1,
+         model=4,seed=31216)
+
+process (data=pilot,y="support",x="corgaeff",m="legit",total=1,stand = 1, normal=1,
+         model=4,seed=31216)
+
+## multiple regression: poleff vs orgaeff on legitimacy
+
+polorgaeff_legit <- lm(legit~ poleff + orgaeff, data = pilot)
+summary(polorgaeff_legit)
+
+
+# BOOTSTRAP NOT WORKING --> TRY TO FIND OUT HOW TO DO BOOTSTRAP
 
 
 
+library(boot)
+# function to obtain R-Squared from the data
+rsq <- function(formula, data, indices) {
+  d <- data[indices,] # allows boot to select sample
+  fit <- lm(formula, data=d)
+  return(summary(fit)$r.square)
+}
 
+bootreg_polorgaeff_legit <- boot(data=pilot, statistic=rsq,
+                R=1000, formula=legit~poleff+orgaeff)
+summary(bootreg_polorgaeff_legit)
 
+plot(bootreg_polorgaeff_legit, index=1) # intercept
+plot(bootreg_polorgaeff_legit, index=2) # poleff
+plot(bootreg_polorgaeff_legit, index=3) # orgaeff
 
+# get 95% confidence intervals
+boot.ci(bootreg_polorgaeff_legit, type="bca", index=1) # intercept
+boot.ci(bootreg_polorgaeff_legit, type="bca", index=2) # poleff
+boot.ci(bootreg_polorgaeff_legit, type="bca", index=3) # orgaeff
 
 
 
 
 
 ## simple mediation: stereotype = X, legit = M, support = Y
+
+
+
+
+
+
+
 ## moderated mediation: eff (pol/ orga) = X, legit = M, self-cat = W (on a; on b), support = Y
 ## moderated mediation: stereotype = X, legit = M, self-cat = W (on a, on b), support = Y
