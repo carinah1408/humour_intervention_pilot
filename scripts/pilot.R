@@ -6466,16 +6466,9 @@ boot.ci(boot_polorgaeffstereo_legit, type = "bca", index = 2)
 boot.ci(boot_polorgaeffstereo_legit, type = "bca", index = 3)
 boot.ci(boot_polorgaeffstereo_legit, type = "bca", index = 4)
 
-## moderated mediation: eff (pol/ orga) = X, legit = M, self-cat = W (on a-, b-, and c-path), support = Y
-
-# interaction between selfcat and poleff
-cselfcatpol <- pilot$cselfcat*pilot$cpoleff
-pilot <- data.frame(pilot, cselfcatpol)
+## moderated mediation: poleff = X, legit = M, self-cat = W (on a-, b-, and c-path), support = Y
 
 # interaction on a-path
-
-summary(lm(legit ~ cpoleff + cselfcatpol, data = pilot)) # the interaction between politcal efficacy and self-categorization is n.s.
-summary(lm(support ~ cpoleff+legit, data = pilot))
 
 # in process
 
@@ -6483,13 +6476,6 @@ process(data = pilot, y = "support", x = "cpoleff", m = "legit", w = "cselfcat",
 # interaction n.s.
 
 # interaction on b-path
-
-# interaction between selfcat and legit
-cselfcatlegit <- pilot$cselfcat*pilot$clegit
-pilot <- data.frame(pilot, cselfcatlegit)
-
-summary(lm(legit ~ cpoleff, data = pilot))
-summary(lm(support ~ cpoleff + legit + cselfcat + cselfcatlegit, data = pilot)) # interaction between legtimacy and self-categorization is significant 
 
 # in process
 
@@ -6499,7 +6485,46 @@ process(data = pilot, y = "support", x = "cpoleff", m = "clegit", w = "cselfcat"
 
 # interaction on c-path
 
-# MODEL 5
+process(data = pilot, y = "support", x = "cpoleff", m = "legit", w = "cselfcat", model = 5, plot = 1, seed = 42515)
+
+
+
+## moderated mediation: orgaeff = X, legit = M, self-cat = W (on a-, b-, and c-path), support = Y
+
+# interaction between selfcat and orgaeff
+
+# interaction on a-path
+
+# in process
+
+process(data = pilot, y = "support", x = "corgaeff", m = "legit", w = "cselfcat", model = 7, plot = 1, seed = 42514)
+
+# interaction on b-path
+
+# in process
+
+process (data=pilot,y="support",x="clegit",w="cselfcat",cov="orgaeff",model=1,plot=1, jn= 1) # at cselfcat of above -1.10, the interaction turns sign.
+
+process(data = pilot, y = "support", x = "corgaeff", m = "clegit", w = "cselfcat", model = 14, plot = 1, seed = 42513)
+
+# interaction on c-path
+
+process(data = pilot, y = "support", x = "corgaeff", m = "legit", w = "cselfcat", model = 5, plot = 1, seed = 42512)
+
 
 
 ## moderated mediation: stereotype = X, legit = M, self-cat = W (on a, on b), support = Y
+
+# interaction on a-path
+
+process(data = pilot, y = "support", x = "cstereo", m = "legit", w = "cselfcat", model = 7, plot = 1, seed = 42511)
+
+# interaction on b-path
+
+process (data=pilot,y="support",x="clegit",w="cselfcat",cov="cstereo",model=1,plot=1, jn= 1) # at cselfcat of above -1.10, the interaction turns sign.
+
+process(data = pilot, y = "support", x = "cstereo", m = "clegit", w = "cselfcat", model = 14, plot = 1, seed = 42510)
+
+# interaction on c-path
+
+process(data = pilot, y = "support", x = "cstereo", m = "legit", w = "cselfcat", model = 5, plot = 1, seed = 42509)
