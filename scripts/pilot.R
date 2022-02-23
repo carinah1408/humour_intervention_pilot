@@ -6404,7 +6404,8 @@ pilot <- pilot %>%
      cselfcat = scale(selfcat, scale = FALSE),
      cpoleff = scale(poleff, scale = FALSE), 
      corgaeff = scale(orgaeff, scale = FALSE),
-     cstereo = scale(stereo, scale = FALSE)
+     cstereo = scale(stereo, scale = FALSE),
+     clegit = scale(legit, scale = FALSE)
   )
 
 ## simple mediation: eff (pol/orga) = X, legit = M, support = Y
@@ -6415,48 +6416,90 @@ process (data=pilot,y="support",x="cpoleff",m="legit",total=1,stand = 1, normal=
 process (data=pilot,y="support",x="corgaeff",m="legit",total=1,stand = 1, normal=1,
          model=4,seed=31216)
 
-## multiple regression: poleff vs orgaeff on legitimacy
+## multiple regression: testing effect of poleff vs orgaeff on legitimacy
 
 polorgaeff_legit <- lm(legit~ poleff + orgaeff, data = pilot)
 summary(polorgaeff_legit)
 
+lm.beta::lm.beta(polorgaeff_legit)
 
-# BOOTSTRAP NOT WORKING --> TRY TO FIND OUT HOW TO DO BOOTSTRAP
+car::durbinWatsonTest(polorgaeff_legit) # 1.65 independence of errors met
+car::vif(polorgaeff_legit) 
+plot(polorgaeff_legit) # homoscedasticity unclear
+car::ncvTest(polorgaeff_legit) # sign. homoscedasticity violated
 
-
+# bootstrapped CI
 
 library(boot)
-# function to obtain R-Squared from the data
-rsq <- function(formula, data, indices) {
-  d <- data[indices,] # allows boot to select sample
-  fit <- lm(formula, data=d)
-  return(summary(fit)$r.square)
+
+bootReg <-function(formula, data, indices)
+{
+  d <- data[indices,]
+  fit <- lm(formula, data = d)
+  return(coef(fit))
 }
 
-bootreg_polorgaeff_legit <- boot(data=pilot, statistic=rsq,
-                R=1000, formula=legit~poleff+orgaeff)
-summary(bootreg_polorgaeff_legit)
-
-plot(bootreg_polorgaeff_legit, index=1) # intercept
-plot(bootreg_polorgaeff_legit, index=2) # poleff
-plot(bootreg_polorgaeff_legit, index=3) # orgaeff
-
-# get 95% confidence intervals
-boot.ci(bootreg_polorgaeff_legit, type="bca", index=1) # intercept
-boot.ci(bootreg_polorgaeff_legit, type="bca", index=2) # poleff
-boot.ci(bootreg_polorgaeff_legit, type="bca", index=3) # orgaeff
-
-
-
-
+boot_polorgaeff_legit <- boot(statistic = bootReg, formula = legit~ poleff + orgaeff, data = pilot, R = 5000)
+boot.ci(boot_polorgaeff_legit, type = "bca", index = 1)
+boot.ci(boot_polorgaeff_legit, type = "bca", index = 2)
+boot.ci(boot_polorgaeff_legit, type = "bca", index = 3)
 
 ## simple mediation: stereotype = X, legit = M, support = Y
+process (data=pilot,y="support",x="cstereo",m="legit",total=1,stand = 1, normal=1,
+         model=4,seed=31216)
+
+## multiple regression: testing effect of poleff vs orgaeff vs stereo on legitimacy
+
+polorgaeffstereo_legit <- lm(legit~ poleff + orgaeff + stereo, data = pilot)
+summary(polorgaeffstereo_legit)
+
+lm.beta::lm.beta(polorgaeffstereo_legit)
+
+car::durbinWatsonTest(polorgaeffstereo_legit) # 1.65 independence of errors met
+car::vif(polorgaeffstereo_legit) 
+plot(polorgaeffstereo_legit) # homoscedasticity unclear
+car::ncvTest(polorgaeffstereo_legit) # n.s.
+
+boot_polorgaeffstereo_legit <- boot(statistic = bootReg, formula = legit~ poleff + orgaeff + stereo, data = pilot, R = 5000)
+boot.ci(boot_polorgaeffstereo_legit, type = "bca", index = 1)
+boot.ci(boot_polorgaeffstereo_legit, type = "bca", index = 2)
+boot.ci(boot_polorgaeffstereo_legit, type = "bca", index = 3)
+boot.ci(boot_polorgaeffstereo_legit, type = "bca", index = 4)
+
+## moderated mediation: eff (pol/ orga) = X, legit = M, self-cat = W (on a-, b-, and c-path), support = Y
+
+# interaction between selfcat and poleff
+cselfcatpol <- pilot$cselfcat*pilot$cpoleff
+pilot <- data.frame(pilot, cselfcatpol)
+
+# interaction on a-path
+
+summary(lm(legit ~ cpoleff + cselfcatpol, data = pilot)) # the interaction between politcal efficacy and self-categorization is n.s.
+summary(lm(support ~ cpoleff+legit, data = pilot))
+
+# in process
+
+process(data = pilot, y = "support", x = "cpoleff", m = "legit", w = "cselfcat", model = 7, plot = 1, seed = 42517)
+# interaction n.s.
+
+# interaction on b-path
+
+# interaction between selfcat and legit
+cselfcatlegit <- pilot$cselfcat*pilot$clegit
+pilot <- data.frame(pilot, cselfcatlegit)
+
+summary(lm(legit ~ cpoleff, data = pilot))
+summary(lm(support ~ cpoleff + legit + cselfcat + cselfcatlegit, data = pilot)) # interaction between legtimacy and self-categorization is significant 
+
+# in process
+
+process (data=pilot,y="support",x="clegit",w="cselfcat",cov="poleff",model=1,plot=1, jn= 1) # at cselfcat of above 1.06, the interaction turns sign.
+
+process(data = pilot, y = "support", x = "cpoleff", m = "clegit", w = "cselfcat", model = 14, plot = 1, seed = 42516)
+
+# interaction on c-path
+
+# MODEL 5
 
 
-
-
-
-
-
-## moderated mediation: eff (pol/ orga) = X, legit = M, self-cat = W (on a; on b), support = Y
 ## moderated mediation: stereotype = X, legit = M, self-cat = W (on a, on b), support = Y
