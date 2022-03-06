@@ -6485,6 +6485,7 @@ process(data = pilot, y = "support", x = "cpoleff", m = "clegit", w = "cselfcat"
 
 # interaction on c-path
 
+process (data=pilot,y="support",x="cpoleff",w="cselfcat",cov="legit",model=1,plot=1, jn= 1) # at a cselfcat of above -1.27 the interaction turns sign.
 process(data = pilot, y = "support", x = "cpoleff", m = "legit", w = "cselfcat", model = 5, plot = 1, seed = 42515)
 
 
@@ -6509,6 +6510,7 @@ process(data = pilot, y = "support", x = "corgaeff", m = "clegit", w = "cselfcat
 
 # interaction on c-path
 
+process (data=pilot,y="support",x="corgaeff",w="cselfcat",cov="legit",model=1,plot=1, jn= 1)
 process(data = pilot, y = "support", x = "corgaeff", m = "legit", w = "cselfcat", model = 5, plot = 1, seed = 42512)
 
 
@@ -6527,4 +6529,5 @@ process(data = pilot, y = "support", x = "cstereo", m = "clegit", w = "cselfcat"
 
 # interaction on c-path
 
+process (data=pilot,y="support",x="cstereo",w="cselfcat",cov="legit",model=1,plot=1, jn= 1)
 process(data = pilot, y = "support", x = "cstereo", m = "legit", w = "cselfcat", model = 5, plot = 1, seed = 42509)
