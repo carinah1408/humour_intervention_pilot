@@ -1048,11 +1048,15 @@ pilot <- pilot %>%
 
 ## simple mediation: eff (pol/orga) = X, legit = M, support = Y
 
-process (data=pilot,y="support",x="cpoleff",m="legit",total=1,stand = 1, normal=1,
-         model=4,seed=31216)
+# OLD process (data=pilot,y="support",x="cpoleff",m="legit",total=1,stand = 1, normal=1, model=4,seed=31216)
+# NEW 
+process(data=pilot, y = "support", x = "poleff", m = "legit", total = 1, model = 4, seed = 311022)
 
-process (data=pilot,y="support",x="corgaeff",m="legit",total=1,stand = 1, normal=1,
-         model=4,seed=31216)
+
+#OLD process (data=pilot,y="support",x="corgaeff",m="legit",total=1,stand = 1, normal=1, model=4,seed=31216)
+
+#NEW
+process(data = pilot, y = "support", x = "orgaeff", m = "legit", total = 1, model = 4, seed = 311022)
 
 ## multiple regression: testing effect of poleff vs orgaeff on legitimacy
 
@@ -1083,8 +1087,11 @@ boot.ci(boot_polorgaeff_legit, type = "bca", index = 2)
 boot.ci(boot_polorgaeff_legit, type = "bca", index = 3)
 
 ## simple mediation: stereotype = X, legit = M, support = Y
-process (data=pilot,y="support",x="cstereo",m="legit",total=1,stand = 1, normal=1,
-         model=4,seed=31216)
+
+#OLD process (data=pilot,y="support",x="cstereo",m="legit",total=1,stand = 1, normal=1, model=4,seed=31216)
+
+#NEW
+process(data = pilot, y = "support", x = "stereo", m = "legit", total = 1, model = 4, seed = 311022)
 
 ## multiple regression: testing effect of poleff vs orgaeff vs stereo on legitimacy
 
@@ -1110,30 +1117,43 @@ boot.ci(boot_polorgaeffstereo_legit, type = "bca", index = 4)
 
 # in process
 
-process(data = pilot, y = "support", x = "cpoleff", m = "legit", w = "cselfcat", model = 7, plot = 1, seed = 42517)
+#OLD process(data = pilot, y = "support", x = "cpoleff", m = "legit", w = "cselfcat", model = 7, plot = 1, seed = 42517)
 # interaction n.s.
+
+#NEW
+process(data = pilot, y = "support", x = "poleff", m = "legit", w = "selfcat", model = 7, plot = 1, center = 2, moments = 1, seed = 311022)
 
 # interaction on b-path
 
 # in process
 
-process (data=pilot,y="support",x="clegit",w="cselfcat",cov="poleff",model=1,plot=1, jn= 1) # at cselfcat of above 1.06, the interaction turns sign.
-process (data=pilot,y="support",x="clegit",w="selfcat",cov="poleff",model=1,plot=1, jn= 1) 
+#OLD process (data=pilot,y="support",x="clegit",w="cselfcat",cov="poleff",model=1,plot=1, jn= 1) # at cselfcat of above 1.06, the interaction turns sign.
+#OLDprocess (data=pilot,y="support",x="clegit",w="selfcat",cov="poleff",model=1,plot=1, jn= 1) 
 # when poleff is covariate,  this equals to scores of =/> 2.20 on the scale; when orgaeff is covariate, this equals to 
 # 1.95 on the scale; when competence is covariate, this equals to 2.20 on the scale
+#NEW
+process(data = pilot, y = "support", x = "legit", w = "selfcat", cov = "poleff", model = 1, moments = 1, plot = 1, jn = 1)
+process(data = pilot, y = "support", x = "legit", w = "selfcat", cov = "orgaeff", model = 1, moments = 1, plot = 1, jn = 1)
+process(data = pilot, y = "support", x = "legit", w = "selfcat", cov = "stereo", model = 1, moments = 1, plot = 1, jn = 1)
 
-
-process(data = pilot, y = "support", x = "cpoleff", m = "clegit", w = "cselfcat", model = 14, plot = 1, seed = 42516)
+#OLD process(data = pilot, y = "support", x = "cpoleff", m = "clegit", w = "cselfcat", model = 14, plot = 1, seed = 42516)
+#NEW
+process(data = pilot, y = "support", x = "poleff", m = "legit", w = "selfcat", model = 14, center = 2, moments = 1, plot =1, seed = 311022)
 
 # interaction on c-path
 
-process (data=pilot,y="support",x="cpoleff",w="cselfcat",cov="legit",model=1,plot=1, jn= 1) # at a cselfcat of above -1.27 the interaction turns sign.
-process (data=pilot,y="support",x="cpoleff",w="selfcat",cov="legit",model=1,plot=1, jn= 1) 
+#OLD process (data=pilot,y="support",x="cpoleff",w="cselfcat",cov="legit",model=1,plot=1, jn= 1) # at a cselfcat of above -1.27 the interaction turns sign.
+# OLD process (data=pilot,y="support",x="cpoleff",w="selfcat",cov="legit",model=1,plot=1, jn= 1) 
 # with pol as predictor (and legit as cov), this equals to 1.90 on the scale; when orga = predictor, this 
 # equals to 2.84 on scale; when stereo as predictor, this equals to 2.53 on scale
-process(data = pilot, y = "support", x = "cpoleff", m = "legit", w = "cselfcat", model = 5, plot = 1, seed = 42515)
+#NEW
+process(data = pilot, y = "support", x= "poleff", w = "selfcat", cov = "legit", model = 1, moments = 1, plot = 1, jn = 1)
+process(data = pilot, y = "support", x= "orgaeff", w = "selfcat", cov = "legit", model = 1, moments = 1, plot = 1, jn = 1)
+process(data = pilot, y = "support", x= "stereo", w = "selfcat", cov = "legit", model = 1, moments = 1, plot = 1, jn = 1)
 
-
+#OLD process(data = pilot, y = "support", x = "cpoleff", m = "legit", w = "cselfcat", model = 5, plot = 1, seed = 42515)
+#NEW
+process(data = pilot, y = "support", x = "poleff", m = "legit", w = "selfcat", model = 5, center = 2, moments = 1, plot =1, seed = 311022)
 
 ## moderated mediation: orgaeff = X, legit = M, self-cat = W (on a-, b-, and c-path), support = Y
 
@@ -1143,39 +1163,52 @@ process(data = pilot, y = "support", x = "cpoleff", m = "legit", w = "cselfcat",
 
 # in process
 
-process(data = pilot, y = "support", x = "corgaeff", m = "legit", w = "cselfcat", model = 7, plot = 1, seed = 42514)
+#OLD process(data = pilot, y = "support", x = "corgaeff", m = "legit", w = "cselfcat", model = 7, plot = 1, seed = 42514)
+#NEW
+process(data = pilot, y = "support", x = "orgaeff", m = "legit", w = "selfcat", center = 2, moments = 1, model = 7, plot = 1, seed = 311022)
+#NEW
 
 # interaction on b-path
 
 # in process
 
-process (data=pilot,y="support",x="clegit",w="cselfcat",cov="orgaeff",model=1,plot=1, jn= 1) # at cselfcat of above -1.10, the interaction turns sign.
+#OLD process (data=pilot,y="support",x="clegit",w="cselfcat",cov="orgaeff",model=1,plot=1, jn= 1) # at cselfcat of above -1.10, the interaction turns sign.
 
-process(data = pilot, y = "support", x = "corgaeff", m = "clegit", w = "cselfcat", model = 14, plot = 1, seed = 42513)
+#OLDprocess(data = pilot, y = "support", x = "corgaeff", m = "clegit", w = "cselfcat", model = 14, plot = 1, seed = 42513)
+#NEW
+process(data = pilot, y = "support", x = "orgaeff", m = "legit", w = "selfcat", center = 2, moments = 1, model = 14, plot = 1, seed = 311022)
 
 # interaction on c-path
 
-process (data=pilot,y="support",x="corgaeff",w="cselfcat",cov="legit",model=1,plot=1, jn= 1)
-process(data = pilot, y = "support", x = "corgaeff", m = "legit", w = "cselfcat", model = 5, plot = 1, seed = 42512)
+#OLDprocess (data=pilot,y="support",x="corgaeff",w="cselfcat",cov="legit",model=1,plot=1, jn= 1)
+#OLDprocess(data = pilot, y = "support", x = "corgaeff", m = "legit", w = "cselfcat", model = 5, plot = 1, seed = 42512)
 
+#NEW
+process(data = pilot, y = "support", x = "orgaeff", m = "legit", w = "selfcat", model = 5, center = 2, moment = 2, plot = 1, seed = 311022)
 
 
 ## moderated mediation: stereotype = X, legit = M, self-cat = W (on a, on b), support = Y
 
 # interaction on a-path
 
-process(data = pilot, y = "support", x = "cstereo", m = "legit", w = "cselfcat", model = 7, plot = 1, seed = 42511)
+#OLD process(data = pilot, y = "support", x = "cstereo", m = "legit", w = "cselfcat", model = 7, plot = 1, seed = 42511)
+#NEW
+process(data = pilot, y = "support", x = "stereo", m = "legit", w = "selfcat", model = 7, center = 2, moment =1, plot =1, seed = 311022)
 
 # interaction on b-path
 
-process (data=pilot,y="support",x="clegit",w="cselfcat",cov="cstereo",model=1,plot=1, jn= 1) # at cselfcat of above -1.10, the interaction turns sign.
+#OLDprocess (data=pilot,y="support",x="clegit",w="cselfcat",cov="cstereo",model=1,plot=1, jn= 1) # at cselfcat of above -1.10, the interaction turns sign.
 
-process(data = pilot, y = "support", x = "cstereo", m = "clegit", w = "cselfcat", model = 14, plot = 1, seed = 42510)
+#OLDprocess(data = pilot, y = "support", x = "cstereo", m = "clegit", w = "cselfcat", model = 14, plot = 1, seed = 42510)
+#NEW
+process(data = pilot, y = "support", x = "stereo", m = "legit", w = "selfcat", center = 2, moments =1, plot =1, model = 14, seed = 311022)
 
 # interaction on c-path
 
-process (data=pilot,y="support",x="cstereo",w="cselfcat",cov="legit",model=1,plot=1, jn= 1)
-process(data = pilot, y = "support", x = "cstereo", m = "legit", w = "cselfcat", model = 5, plot = 1, seed = 42509)
+#OLDprocess (data=pilot,y="support",x="cstereo",w="cselfcat",cov="legit",model=1,plot=1, jn= 1)
+#OLDprocess(data = pilot, y = "support", x = "cstereo", m = "legit", w = "cselfcat", model = 5, plot = 1, seed = 42509)
+#NEW
+process(data = pilot, y = "support", x = "stereo", m = "legit", w = "selfcat", center = 2, moments = 1, model = 5, plot =1, seed = 311022)
 
 # for display: re-do models (5 and 14) with automatic mean-centring and robust CI
 
