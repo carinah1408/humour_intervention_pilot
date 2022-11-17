@@ -818,7 +818,7 @@ legit_stereo_mcd # 13 outliers detected
 Routliers::plot_outliers_mcd(legit_stereo_mcd, x = data.frame(legitimacy, stereotype))
 # no influential cases (in line with diagnostics)
 
-supporting <- pilot$support
+SupportIntention <- pilot$support
 support_stereo_mcd <- Routliers::outliers_mcd(x = data.frame(supporting,stereotype))
 support_stereo_mcd # 27 outliers found
 Routliers::plot_outliers_mcd(support_stereo_mcd, x = data.frame(supporting, stereotype), pos_display = TRUE)
@@ -875,7 +875,7 @@ lines(xfit, yfit) # normality slightly violated (robust regression)
 
 # multivariate outliers poleff, legit and support (mcd)
 
-legitimacy <- pilot$legit
+Legitimacy <- pilot$legit
 politicalefficacy <- pilot$poleff
 legit_poleff_mcd <- Routliers::outliers_mcd(x = data.frame(politicalefficacy, legitimacy))
 legit_poleff_mcd # 12 outliers detected
@@ -889,7 +889,6 @@ Routliers::plot_outliers_mcd(support_poleff_mcd, x = data.frame(politicalefficac
 
 # those in the centre, on the right and not affiliated push the slop up
 outliers_support <- pilot %>% filter(support >= "4")
-
 
 ## orgaeff and legit
 pilot %>%
@@ -996,16 +995,28 @@ lines(xfit, yfit) # normality seems slightly violated
 
 # multivariate outliers selfcat, legit and support (mcd)
 
-selfcategorization <- pilot$selfcat
-legit_selfcat_mcd <- Routliers::outliers_mcd(x = data.frame(selfcategorization, legitimacy))
+SocialIdentifification <- pilot$selfcat
+legit_selfcat_mcd <- Routliers::outliers_mcd(x = data.frame(SocialIdentifification, Legitimacy))
 legit_selfcat_mcd # 14 outliers detected
-Routliers::plot_outliers_mcd(legit_poleff_mcd, x = data.frame(selfcategorization, legitimacy))
+Routliers::plot_outliers_mcd(legit_poleff_mcd, x = data.frame(SocialIdentifification, Legitimacy))
 # slope slightly steeper with outliers
 
 support_selfcat_mcd <- Routliers::outliers_mcd(x = data.frame(selfcategorization, supporting))
 support_selfcat_mcd # 24 outliers detected
-Routliers::plot_outliers_mcd(support_poleff_mcd, x = data.frame(selfcategorization, supporting))
+Routliers::plot_outliers_mcd(support_poleff_mcd, x = data.frame(SocialIdentifification, SupportIntention))
 # slope is strongly positively influenced by outliers (those on the right, centre and na)
+
+
+legit_support_mcd <- Routliers::outliers_mcd(x = data.frame(Legitimacy, SupportIntention))
+legit_support_mcd # 61 outliers
+Routliers::plot_outliers_mcd(legit_support_mcd , x = data.frame(Legitimacy, SupportIntention))
+legit_support_mcd$outliers_pos
+
+# ID 2   8   9  10  18  22  27  29  32  33  35  37  42  44  45  46  52  55  56  68  71  76  81  91  96  99 104 123 124 127 133 
+# 134 135 136 137 145 146 150 151 156 157 161 163 166 168 169 170 171 172 174 176 180 181 182 183 186 187 194 196 197 198 
+
+outliers_legit_support <- filter(pilot, id == c(2, 8, 9, 10, 18, 22, 27, 29, 32, 33, 35, 37, 42, 44, 45, 46, 52, 55, 56, 68, 71, 76, 81, 91, 96, 99, 104, 123, 124, 127, 133,
+                                                134, 135, 136, 137, 145, 146, 150, 151, 156, 157, 161, 163, 166, 168, 169, 170, 171, 172, 174, 176, 180, 181, 182, 183, 186, 187, 194, 196, 197, 198))
 
 ### dichotomize political affiliation ----
 # (left vs right/centre/na) to run t-test on self-cat/ endorse, as well as legitimacy and support
