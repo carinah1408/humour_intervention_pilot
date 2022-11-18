@@ -1040,6 +1040,13 @@ t.test(legit ~ aff_split, data = pilot)
 
 t.test(support ~ aff_split, data = pilot)
 
+pilot %>% 
+  group_by(aff_split) %>%
+  summarise(., mean_selfcat = mean(selfcat), sd_selfcat = sd(selfcat),
+            mean_endorse = mean(endorse), sd_endorse = sd(endorse),
+            mean_legit = mean(legit), sd_legit = sd(legit),
+            mean_support = mean(support), sd_support = sd(support))
+
 ### import process function----
 
 source("scripts/process_function.R")
